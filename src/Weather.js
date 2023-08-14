@@ -3,16 +3,26 @@ import "./Weather.css";
 import axios from "axios";
 
 
-export default function Weather() {
-    const [ready, setReady] = useState(false);
-const [temperature, setTemperature] = useState(null);
+export default function Weather(props) {
+const [weatherData, setWeatherData] = useState({ready: false});
 function handleResponse(response) {
     console.log(response.data);
-    setTemperature(response.data.main.temp);
-   setReady(true);
+    setWeatherData({
+        ready: true,
+temperature: response.data.main.temp,
+humidity: response.data.main.humidity,
+date: "Sunday 9:09",
+description: response.data.weather[0].description,
+iconUrl: "https://ssl.gstatic.com/onebox/weather/64/partly_cloudy.png",
+   wind: response.data.wind.speed,
+   city: response.data.name
+    }
+
+    );
+
 
 }
- if(ready) {
+ if(weatherData.ready) {
     return (
     <div className="Weather">
     <form>
@@ -26,20 +36,20 @@ function handleResponse(response) {
         </div>
     </form>
 
-    <h1>Abuja</h1>
+    <h1>{weatherData.city}</h1>
     <ul>
-        <li>Monday 3:51</li>
-        <li>Mostly cloudy</li>
+        <li>{weatherData.time}</li>
+        <li className="text-capitalize">{weatherData.description}</li>
     </ul>
     <div className="row mt-3">
     <div className="col-6">
-        <div className="clear-fix">
+        <div className="clear-fix d-flex align-items-center">
           
-        <img src="https://ssl.gstatic.com/onebox/weather/64/partly_cloudy.png" 
-        alt="mostly-cloudy" className="float-left" />
+        <img src={weatherData.iconUrl}
+        alt={weatherData.description} className="float-left" />
 
       <div className="float-left">
-       <span className="temperature">6</span>
+       <span className="temperature">{Math.round(weatherData.temperature)}</span>
        <span className="unit">°C</span>
        </div>
        </div>
@@ -47,14 +57,9 @@ function handleResponse(response) {
     <div className="col-6">
         <ul>
             <li>
-                Precipitation: 12%
-            </li>
+                Humidity: {weatherData.humidity}%</li>
             <li>
-                Humidity: 54%
-            </li>
-            <li>
-                Wind: 13Km/h
-            </li>
+                Wind: {weatherData.wind} Km/h</li>
         </ul>
     </div>
     </div>
@@ -62,9 +67,8 @@ function handleResponse(response) {
     );
 } else {
     const  apiKey = "2d96d64425dca1d6eda00d942a281c0d";
-    let city = "Abuja";
     let units = "metric";
-    let apiUrl = `https://api.openweathermap.org/data/2.5/weather?q=${city}&appid=${apiKey}&units=${units}`;
+    let apiUrl = `https://api.openweathermap.org/data/2.5/weather?q=${props.defaultCity}&appid=${apiKey}&units=${units}`;
     axios.get(apiUrl).then(handleResponse);
 
     return "Loading..."
